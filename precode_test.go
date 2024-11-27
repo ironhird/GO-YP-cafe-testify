@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 // Запрос сформирован корректно, сервис возвращает код ответа 200 и тело ответа не пустое
@@ -16,8 +17,8 @@ func TestMainHandlerWhenOk(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	assert.Equal(t, responseRecorder.Code, http.StatusOK)    // код ответа 200
-	assert.GreaterOrEqual(t, responseRecorder.Body.Len(), 1) // длина тела ответа больше нуля
+	require.Equal(t, responseRecorder.Code, http.StatusOK) // код ответа 200
+	assert.NotEmpty(t, responseRecorder.Body)              // тело ответа не пустое
 }
 
 // Сервис возвращает код ответа 400 и ошибку "wrong city value" в теле ответа
@@ -27,7 +28,7 @@ func TestMainHandlerWhenWrongCity(t *testing.T) {
 	handler := http.HandlerFunc(mainHandle)
 	handler.ServeHTTP(responseRecorder, req)
 
-	assert.Equal(t, responseRecorder.Code, http.StatusBadRequest)       // код ответа 400
+	require.Equal(t, responseRecorder.Code, http.StatusBadRequest)      // код ответа 400
 	assert.Equal(t, responseRecorder.Body.String(), "wrong city value") // "wrong city value" в теле ответа
 }
 
@@ -42,5 +43,6 @@ func TestMainHandlerWhenCountMoreThanTotal(t *testing.T) {
 	cafeCount := len(strings.Split(bodyString, ","))
 	actualCafeCount := len(cafeList["moscow"])
 
-	assert.Equal(t, actualCafeCount, cafeCount) // все доступные кафе
+	require.Equal(t, responseRecorder.Code, http.StatusOK) // код ответа 200
+	assert.Equal(t, actualCafeCount, cafeCount)            // все доступные кафе
 }
